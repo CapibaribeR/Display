@@ -1,0 +1,13 @@
+#??????
+[INIT]
+PICFIX=0
+SCREENDSIZE=480X272
+BCOLOR=-1
+COLOR=-16777216
+[IMG]
+00=00.bmp
+01=01.bmp
+02=02.bmp
+03=03.bmp
+04=04.bmp
+05=05.bmp
