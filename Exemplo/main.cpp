@@ -1,67 +1,68 @@
 #include "mbed.h"
 
-// General functions
+// Funções gerais
 void setPalette();
 void printImage(int type);
 const char* intToHex(int value);
 
-// Battery checking
-int battLevel = 100;
+// Checagem da bateria
+int battLevel = 100;          // Variável para armazenar a carga da bateria
 void printBattRectangle(int type);
 void printBattLevel(int percen);
 void printBattImage(int type, int percen);
 
-// Speed checking
-int speed_km = 0;
+// Checagem de velocidade
+int speed_km = 0;             // Variável para armazenar a velocidade
 void printSpeedRectangle();
 void printSpeed(int speed);
 
-// Hexadecimal variables
+// Variáveis que armazenam hexadecimais
 char c[] = "\x00";
 char p[] = "\x25";
 
-// Creating serial
+// Criando a serial de comunicação (115200 de baud rate)
 static BufferedSerial DWIN(PA_9, PA_10, 115200);
 FileHandle *mbed::mbed_override_console(int fd){
     return &DWIN;
 }
 
 int main(){
-    setPalette();
-    printImage(1);
+    setPalette();   // Determina a paleta de cores iniciais
+    printImage(1);  // Colocar a foto de ID 0 (patinho)
     while(true){
-        printBattRectangle(0);
-        printBattRectangle(1);
-        printSpeedRectangle();
-        printBattLevel(battLevel);
-        printBattImage(1, battLevel);
-        printBattImage(0, 100);
-        printSpeed(speed_km);
+        printBattRectangle(0);  // Retângulo que cobre a imagem da bateria
+        printBattRectangle(1);  // Retângulo que cobre o texto da bateria
+        printSpeedRectangle();  // Retângulo que cobre o texto da velocidade
+        printBattLevel(battLevel);     // Texto da bateria
+        printBattImage(1, battLevel);  // Imagem da bateria (nível de carregamento)
+        printBattImage(0, 100);        // Contorno da imagem da bateria
+        printSpeed(speed_km);   // Texto da velocidade
         
-        battLevel = battLevel - 1;
-        speed_km = speed_km + 15;
+        battLevel = battLevel - 1;   // Atualiza o valor da carga da bateria
+        speed_km = speed_km + 15;    // Atualiza o valor da velocidade
 
-        if (battLevel < 0){
+        if (battLevel < 0){          // Reinicia a variável da bateria
             battLevel = 100;
         }
 
-        if (speed_km > 999){
+        if (speed_km > 999){         // Reinicia a variável da bateria
             speed_km = 0;
         }
 
-        ThisThread::sleep_for(100ms);
+        ThisThread::sleep_for(100ms);   // Espera um tempo para recomeçar
     }
 }
 
+// Função para determinar a paleta de cor
 void setPalette(){
     printf("\xAA");
     printf("\x40");
 
-    // Foreground color
+    // Cor do foreground
     printf("%c", c[0]);
     printf("%c", c[0]);
 
-    // Background color
+    // Cor do background
     printf("\x07");
     printf("\xE0");
 
@@ -71,13 +72,14 @@ void setPalette(){
     printf("\x3C");
 }
 
+// Função para colocar a imagem de fundo
 void printImage(int type){
     printf("\xAA");
 
     if (type == 0){
-        printf("\x52");
+        printf("\x52");    // Limpa a imagem
     } else if (type == 1){
-        printf("\x70");
+        printf("\x70");    // Coloca a imagem de ID 0
         printf("%c", c[0]);
     }
 
@@ -87,6 +89,7 @@ void printImage(int type){
     printf("\x3C");
 }
 
+// Função para converter inteiro para hexadecimal
 const char* intToHex(int value){
     if (value == 0){
         return "\x30";
@@ -111,10 +114,11 @@ const char* intToHex(int value){
     }
 }
 
+// Função para colocar um retângulo na tela (bateria)
 void printBattRectangle(int type){
     printf("\xAA");
 
-    if (type == 0){
+    if (type == 0){         // Retângulo no fundo da imagem da bateria
         printf("\x5A");
         printf("%c", c[0]);
         printf("\x17");
@@ -123,8 +127,8 @@ void printBattRectangle(int type){
         printf("%c", c[0]);
         printf("\x47");
         printf("%c", c[0]);
-        printf("\x80");
-    } else if (type == 1){
+        printf("\x79");
+    } else if (type == 1){ // Retângulo no fundo do texto da carga da bateria
         printf("\x5B");
         printf("%c", c[0]);
         printf("\x17");
@@ -142,6 +146,7 @@ void printBattRectangle(int type){
     printf("\x3C");   
 }
 
+// Função para colocar o texto da carga da bateria
 void printBattLevel(int percen){
     printf("\xAA");
     printf("\x98");
@@ -157,6 +162,7 @@ void printBattLevel(int percen){
     printf("%c", c[0]);
     printf("%c", c[0]);
 
+    // Obter a centena, dezena e unidade e converte para inteiro
     int cent = (int)(percen / 100);
     int dez = (int)((percen - cent * 100) / 10);
     int uni = (int)(percen - cent * 100 - dez * 10);
@@ -177,12 +183,13 @@ void printBattLevel(int percen){
     printf("\x3C");
 }
 
+// Função para colocar a imagem da bateria
 void printBattImage(int type, int percen){
     printf("\xAA");
 
-    if (type == 0){
+    if (type == 0){       // Bordas da imagem
         printf("\x59");
-    } else if(type == 1){
+    } else if(type == 1){ // Imagem da bateria em si
         printf("\x5A");
     }
     
@@ -190,6 +197,7 @@ void printBattImage(int type, int percen){
     printf("\x17");
     printf("%c", c[0]);
 
+    // Varia a altura da imagem
     if (percen > 90){
         printf("\x85");
     } else if (percen >= 75){
@@ -212,6 +220,7 @@ void printBattImage(int type, int percen){
     printf("\x3C");   
 }
 
+// Função para colocar um retângulo na tela (velocidade)
 void printSpeedRectangle(){
     printf("\xAA");
 
@@ -220,10 +229,10 @@ void printSpeedRectangle(){
     printf("\x17");
     printf("%c", c[0]);
     printf("\x10");
-    printf("\x01");
-    printf("\x1F");
     printf("%c", c[0]);
-    printf("\x55");
+    printf("\xF6");
+    printf("%c", c[0]);
+    printf("\x50");
 
     printf("\xCC");
     printf("\x33");
@@ -231,7 +240,7 @@ void printSpeedRectangle(){
     printf("\x3C");   
 }
 
-
+// Função para colocar o texto da velocidade
 void printSpeed(int speed){
     printf("\xAA");
     printf("\x98");
