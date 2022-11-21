@@ -55,7 +55,7 @@ int main(){
         printTemp(temperature);
         
         battLevel = battLevel - 5;   // Atualiza o valor da carga da bateria
-        speed_km = speed_km + 5;    // Atualiza o valor da velocidade
+        speed_km = speed_km + 7;    // Atualiza o valor da velocidade
 
         if (battLevel < 0){          // Reinicia a variável da bateria
             battLevel = 100;
@@ -307,7 +307,7 @@ void printTempRectangle(){
     printf("\x64");
 
     printf("%c", c[0]);
-    printf("\x80");
+    printf("\x8A");
     printf("%c", c[0]);
     printf("\x79");
 
@@ -346,6 +346,7 @@ void printTemp(int temp){
     printf("%s", intToHex(dez));
     printf("%s", intToHex(uni));
 
+    printf("\x6F");
     printf("\x43");
     printf("\xCC");
     printf("\x33");
